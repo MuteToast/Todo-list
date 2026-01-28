@@ -1,48 +1,61 @@
 const express = require('express');
 const app = express();
+const db = require('./database');
 
 const PORT = process.env.PORT || 3000;
 app.use(express.json());
-
 app.use(express.static('public'));
 
-let todos = [];
-let idCounter = 1;
-
 app.get('/api/todos', (req, res) => {
-    res.json(todos);
+    db.all('SELECT * FROM todos', (err, rows) => {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to fetch todos' });
+        }
+        res.json(rows);
+    });
 });
 
-app.post('/api/todos', (req, res) => {  
-    const {title} = req.body;
+app.post('/api/todos', (req, res) => {
+    const { title } = req.body;
     if (!title) {
-        return res.status(400).json({error: 'Title is required'});
+        return res.status(400).json({ error: 'Title is required' });
     }
-    const newTodo = {id: idCounter++, title, done: false};
-    todos.push(newTodo);
-    res.status(201).json(newTodo);
+    const query = 'INSERT INTO todos (title, done) VALUES (?, ?)';
+    db.run(query, [title, 0], function (err) {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to add todo' });
+        }
+        res.status(201).json({ id: this.lastID, title, done: false });
+    });
 });
 
 app.put('/api/todos/:id', (req, res) => {
-    const {id} = req.params;
-    const {title, done} = req.body;
-    const todo = todos.find(t => t.id === parseInt(id));
-    if (!todo) {
-        return res.status(404).json({error: 'Todo not found'});
-    }
-    if (title !== undefined) todo.title = title;
-    if (done !== undefined) todo.done = done;
-    res.json(todo);
+    const { id } = req.params;
+    const { title, done } = req.body;
+    const query = 'UPDATE todos SET title = COALESCE(?, title), done = COALESCE(?, done) WHERE id = ?';
+    db.run(query, [title, done, id], function (err) {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to update todo' });
+        }
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Todo not found' });
+        }
+        res.json({ id, title, done });
+    });
 });
 
 app.delete('/api/todos/:id', (req, res) => {
-    const {id} = req.params;
-    const index = todos.findIndex(t => t.id === parseInt(id));
-    if (index === -1) {
-        return res.status(404).json({error: 'Todo not found'});
-    }
-    todos.splice(index, 1);
-    res.status(204).end();
+    const { id } = req.params;
+    const query = 'DELETE FROM todos WHERE id = ?';
+    db.run(query, [id], function (err) {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to delete todo' });
+        }
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Todo not found' });
+        }
+        res.status(204).end();
+    });
 });
 
 app.listen(PORT, () => {
