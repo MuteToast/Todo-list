@@ -12,6 +12,17 @@ async function fetchTodos() {
     });
 }
 
+async function updateTodo(id, done) {
+    await fetch(`${apiUrl}/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({done})
+    });
+    fetchTodos()
+}
+
 document.getElementById('add-todo').addEventListener('click', async () => {
     const todoInput = document.getElementById('todo-input');
     const title = todoInput.value.trim();
