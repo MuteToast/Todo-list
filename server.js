@@ -35,6 +35,16 @@ app.put('/api/todos/:id', (req, res) => {
     res.json(todo);
 });
 
+app.delete('/api/todos/:id', (req, res) => {
+    const {id} = req.params;
+    const index = todos.findIndex(t => t.id === parseInt(id));
+    if (index === -1) {
+        return res.status(404).json({error: 'Todo not found'});
+    }
+    todos.splice(index, 1);
+    res.status(204).end();
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
-  });
+});

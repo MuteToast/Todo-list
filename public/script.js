@@ -33,6 +33,11 @@ async function updateTodo(id, done) {
     fetchTodos()
 }
 
+async function deleteTodo(id) {
+    await fetch(`${apiUrl}/${id}`, { method: 'DELETE' });
+    fetchTodos();
+}
+
 function renderTodos(todos) {
     const list = document.getElementById('todo-list');
     list.innerHTML = '';
@@ -46,6 +51,11 @@ function renderTodos(todos) {
 
         const text = document.createTextNode(todo.title);
         li.appendChild(text);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.addEventListener('click', () => deleteTodo(todo.id));
+        li.appendChild(deleteBtn);
 
         list.appendChild(li);
     });
