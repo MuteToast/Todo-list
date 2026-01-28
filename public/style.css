@@ -27,6 +27,7 @@ li {
     display: flex;
     align-items: center;
     margin: 10px 0;
+    justify-content: flex-start;
 }
 
 li input[type="checkbox"] {
@@ -34,12 +35,11 @@ li input[type="checkbox"] {
 }
 
 li button {
-    margin-left: auto;
+    margin-left: 10px;
     background-color: red;
     color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: 3px;
     padding: 5px 10px;
     cursor: pointer;
-    align-items: center;
 }
