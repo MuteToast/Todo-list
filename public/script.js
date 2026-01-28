@@ -3,13 +3,23 @@ const apiUrl = '/api/todos';
 async function fetchTodos() {
     const response = await fetch(apiUrl);
     const todos = await response.json();
-    const todoList = document.getElementById('todo-list');
-    todoList.innerHTML = '';
-    todos.forEach(todo => {
-        const li = document.createElement('li');
-        li.textContent = todo.title;
-        todoList.appendChild(li);
+    renderTodos(todos);
+}
+
+async function addTodo() {
+    const title = document.getElementById('todo-input').value;
+    if (!title) return alert('Please enter a title');
+    const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({title})
     });
+    if (response.ok) {
+        fetchTodos();
+        document.getElementById('todo-input').value = '';
+    }
 }
 
 async function updateTodo(id, done) {
@@ -23,28 +33,20 @@ async function updateTodo(id, done) {
     fetchTodos()
 }
 
-document.getElementById('add-todo').addEventListener('click', async () => {
-    const todoInput = document.getElementById('todo-input');
-    const title = todoInput.value.trim();
+function renderTodos(todos) {
+    const list = document.getElementById('todo-list');
+    list.innerHTML = '';
+    todos.forEach(todo => {
+        const li = document.getElementById('todo-list')
+        li.textContent = '';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = todo.done;
+        checkbox.addEventListener('change', () => updateTodo(todo.id, checkbox.checked));
+        li.appendChild(checkbox);
+        list.appendChild(li);
+    });
+}
 
-    if (title) {
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ title }),
-        });
-
-        if (response.ok) {
-            todoInput.value = '';
-            fetchTodos();
-        } else {
-            console.error('Failed to add todo');
-        }
-    } else {
-        alert('Please enter a todo');
-    }
-});
-
+document.getElementById('add-button').addEventListener('click', addTodo);
 fetchTodos();
