@@ -37,16 +37,19 @@ function renderTodos(todos) {
     const list = document.getElementById('todo-list');
     list.innerHTML = '';
     todos.forEach(todo => {
-        const li = document.getElementById('todo-list')
-        li.textContent = '';
+        const li = document.createElement('li');
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.checked = todo.done;
         checkbox.addEventListener('change', () => updateTodo(todo.id, checkbox.checked));
         li.appendChild(checkbox);
+
+        const text = document.createTextNode(todo.title);
+        li.appendChild(text);
+
         list.appendChild(li);
     });
 }
 
-document.getElementById('add-button').addEventListener('click', addTodo);
+document.getElementById('add-todo').addEventListener('click', addTodo);
 fetchTodos();
