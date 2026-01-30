@@ -23,14 +23,19 @@ async function addTodo() {
 }
 
 async function updateTodo(id, done) {
-    await fetch(`${apiUrl}/${id}`, {
+    const response = await fetch(`${apiUrl}/${id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({done})
+        body: JSON.stringify({ done })
     });
-    fetchTodos()
+
+    if (response.ok) {
+        fetchTodos();
+    } else {
+        alert('Failed to update the todo');
+    }
 }
 
 async function deleteTodo(id) {
@@ -45,7 +50,7 @@ function renderTodos(todos) {
         const li = document.createElement('li');
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.checked = todo.done;
+        checkbox.checked = !!todo.done;
         checkbox.addEventListener('change', () => updateTodo(todo.id, checkbox.checked));
         li.appendChild(checkbox);
 
