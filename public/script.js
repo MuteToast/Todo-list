@@ -28,7 +28,7 @@ async function updateTodo(id, done) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ done })
+        body: JSON.stringify({ done: done ? 1 : 0 })
     });
 
     if (response.ok) {
